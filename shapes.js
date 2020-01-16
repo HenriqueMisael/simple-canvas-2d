@@ -24,3 +24,13 @@ function drawShapePolygon(dots) {
   dots.push(dots[0]);
   drawLinkingLines(dots);
 }
+
+/**
+ * @param {Vector} first
+ * @param {Vector} second
+ */
+function drawShapeCircle(first, second) {
+  const radius = p5.Vector.dist(first, second);
+  const {x, y} = first;
+  circle(x, y, radius * 2);
+}

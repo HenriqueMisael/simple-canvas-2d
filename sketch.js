@@ -22,15 +22,22 @@ function mousePressed({x, y}) {
 function drawShapes() {
   drawCurrentSchema();
 
+  fill(220);
   getShapes().forEach(shape => {
     switch (shape.type) {
-      case 'line':
+      case 'line': {
         const [first, second] = shape.dots;
         drawShapeLine(first, second);
         break;
+      }
       case 'polygon':
         drawShapePolygon(shape.dots);
         break;
+      case 'circle': {
+        const [first, second] = shape.dots;
+        drawShapeCircle(first, second);
+        break;
+      }
       default:
         console.log('Error: unknown shape type:', shape.type);
     }
@@ -53,6 +60,7 @@ function drawCurrentSchema() {
 }
 
 function drawCanvas() {
+  fill(255);
   rect(canvasLeft, canvasTop, width - canvasLeft, height - canvasTop);
 }
 
@@ -65,10 +73,10 @@ function drawLayout() {
   drawButtonTop('Escala', 2);
   drawButtonTop('Translação', 3);
 
-  drawButtonSide('Reta', 0, () => setDrawingLine());
-  drawButtonSide('Triângulo', 1, () => setDrawingTriangle());
-  drawButtonSide('Quadrilátero', 2, () => setDrawingRectangle());
-  drawButtonSide('Circunferência', 3);
+  drawButtonSide('Reta', 0, setDrawingLine);
+  drawButtonSide('Triângulo', 1, setDrawingTriangle);
+  drawButtonSide('Quadrilátero', 2, setDrawingRectangle);
+  drawButtonSide('Circunferência', 3, setDrawingCircle);
 }
 
 function drawButtonTop(buttonName, buttonID, onClick) {

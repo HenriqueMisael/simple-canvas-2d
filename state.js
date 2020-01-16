@@ -112,3 +112,9 @@ function setDrawingTriangle() {
 function setDrawingRectangle() {
   setDrawing('polygon', 4);
 }
+
+/**
+ */
+function setDrawingCircle() {
+  setDrawing('circle', 2);
+}
