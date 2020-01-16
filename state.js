@@ -86,9 +86,29 @@ function addShape(type, dots) {
 }
 
 /**
+ * @param {ShapeType} shapeType
+ * @param {number} dotsLeft
+ */
+function setDrawing(shapeType, dotsLeft) {
+  state.drawing.isDrawing = true;
+  state.drawing.shapeType = shapeType;
+  state.drawing.dotsLeft = dotsLeft;
+}
+
+/**
  */
 function setDrawingLine() {
-  state.drawing.shapeType = 'line';
-  state.drawing.isDrawing = true;
-  state.drawing.dotsLeft = 2;
+  setDrawing('line', 2);
+}
+
+/**
+ */
+function setDrawingTriangle() {
+  setDrawing('polygon', 3);
+}
+
+/**
+ */
+function setDrawingRectangle() {
+  setDrawing('polygon', 4);
 }

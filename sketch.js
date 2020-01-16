@@ -28,6 +28,9 @@ function drawShapes() {
         const [first, second] = shape.dots;
         drawShapeLine(first, second);
         break;
+      case 'polygon':
+        drawShapePolygon(shape.dots);
+        break;
       default:
         console.log('Error: unknown shape type:', shape.type);
     }
@@ -42,14 +45,11 @@ function drawCurrentSchema() {
     point(x, y);
   });
   strokeWeight(1);
-  stroke('black');
+  stroke(180);
   if (dots.length > 1) {
-    for (let i = 1; i < dots.length; i++) {
-      const firstDot = dots[i - 1];
-      const secondDot = dots[i];
-      line(firstDot.x, firstDot.y, secondDot.x, secondDot.y);
-    }
+    drawLinkingLines(dots);
   }
+  stroke('black');
 }
 
 function drawCanvas() {
@@ -66,8 +66,8 @@ function drawLayout() {
   drawButtonTop('Translação', 3);
 
   drawButtonSide('Reta', 0, () => setDrawingLine());
-  drawButtonSide('Triângulo', 1);
-  drawButtonSide('Quadrado', 2);
+  drawButtonSide('Triângulo', 1, () => setDrawingTriangle());
+  drawButtonSide('Quadrilátero', 2, () => setDrawingRectangle());
   drawButtonSide('Circunferência', 3);
 }
 
