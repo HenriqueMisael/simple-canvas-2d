@@ -10,6 +10,7 @@
 
 /**
  * @typedef {Object} Shape
+ * @property {string} id
  * @property {ShapeType} type
  * @property {Array<Vector>} dots
  */
@@ -22,7 +23,14 @@
  */
 
 /**
+ * @typedef {Object} Selecting
+ * @property {boolean} isSelecting
+ * @property {?string} selected
+ */
+
+/**
  * @typedef {Object} State
+ * @property {Selecting} selecting
  * @property {Drawing} drawing
  * @property {Array<Vector>} dots
  * @property {Array<Shape>} shapes
@@ -32,6 +40,10 @@
  * @type {State}
  */
 const state = {
+  selecting: {
+    isSelecting: true,
+    selected: null
+  },
   drawing: {
     isDrawing: false,
     dotsLeft: 0,
@@ -46,6 +58,13 @@ const state = {
  */
 function isDrawing() {
   return state.drawing.isDrawing;
+}
+
+/**
+ * @returns {boolean}
+ */
+function isSelecting() {
+  return state.selecting.isSelecting;
 }
 
 /**
@@ -74,6 +93,7 @@ function addDot(vector) {
     state.dots = [];
 
     state.drawing.isDrawing = false;
+    state.selecting.isSelecting = true;
   }
 }
 
@@ -82,7 +102,23 @@ function addDot(vector) {
  * @param {Array<Vector>} dots
  */
 function addShape(type, dots) {
-  state.shapes.push({type, dots});
+  const id = `${type}${state.shapes.filter((shape) => shape.type === type).length}`;
+  state.shapes.push({id, type, dots});
+}
+
+/**
+ * @param {?string} shapeID
+ */
+function setSelected(shapeID) {
+  // state.selecting.isSelecting = false;
+  state.selecting.selected = shapeID;
+}
+
+/**
+ * @param {Shape} shape
+ */
+function isShapeSelected({id}) {
+  return state.selecting.selected === id;
 }
 
 /**
@@ -90,6 +126,7 @@ function addShape(type, dots) {
  * @param {number} dotsLeft
  */
 function setDrawing(shapeType, dotsLeft) {
+  state.selecting.isSelecting = false;
   state.drawing.isDrawing = true;
   state.drawing.shapeType = shapeType;
   state.drawing.dotsLeft = dotsLeft;

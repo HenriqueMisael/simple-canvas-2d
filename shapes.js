@@ -34,3 +34,46 @@ function drawShapeCircle(first, second) {
   const {x, y} = first;
   circle(x, y, radius * 2);
 }
+
+/**
+ * @param {Vector} firstShapeDot
+ * @param {Vector} secondShapeDot
+ * @param {Vector} clickedDot
+ * @param {Vector} extremeDot
+ * @returns {boolean}
+ */
+function intersects(firstShapeDot, secondShapeDot, clickedDot, extremeDot) {
+  let det, gamma, lambda;
+  det = (secondShapeDot.x - firstShapeDot.x) * (extremeDot.y - clickedDot.y) - (extremeDot.x - clickedDot.x) * (secondShapeDot.y - firstShapeDot.y);
+  if (det === 0) {
+    return false;
+  } else {
+    lambda = ((extremeDot.y - clickedDot.y) * (extremeDot.x - firstShapeDot.x) + (clickedDot.x - extremeDot.x) * (extremeDot.y - firstShapeDot.y)) / det;
+    gamma = ((firstShapeDot.y - secondShapeDot.y) * (extremeDot.x - firstShapeDot.x) + (secondShapeDot.x - firstShapeDot.x) * (extremeDot.y - firstShapeDot.y)) / det;
+    return (0 < lambda && lambda < 1) && (0 < gamma && gamma < 1);
+  }
+}
+
+/**
+ * @param {Shape} shape
+ * @param {Vector} dot
+ */
+function checkDotInsideShape(shape, dot) {
+
+  if (shape.type === 'circle') {
+    const center = shape.dots[0];
+    return Math.sqrt((dot.x - center.x) * (dot.x - center.x) + (dot.y - center.y) * (dot.y - center.y)) < p5.Vector.dist(center, shape.dots[1]);
+  }
+
+  const extreme = createVector(Number.MAX_SAFE_INTEGER, dot.y);
+
+  let count = intersects(shape.dots[0], shape.dots[shape.dots.length - 1], dot, extreme) ? 1 : 0;
+
+  for (let i = 0; i < shape.dots.length - 1; i++) {
+    if (intersects(shape.dots[i], shape.dots[i + 1], dot, extreme)) {
+      count++;
+    }
+  }
+
+  return count % 2 === 1;
+}

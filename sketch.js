@@ -17,13 +17,25 @@ function mousePressed({x, y}) {
 
   if (isDrawing())
     addDot(createVector(x, y));
+  if (isSelecting()) {
+    const clicked = getShapes().find(shape => checkDotInsideShape(shape, createVector(x, y)));
+
+    if (clicked) setSelected(clicked.id);
+    else setSelected(null);
+  }
 }
 
 function drawShapes() {
   drawCurrentSchema();
 
-  fill(220);
   getShapes().forEach(shape => {
+
+    if (isShapeSelected(shape)) {
+      stroke('red');
+    } else {
+      stroke('black');
+    }
+
     switch (shape.type) {
       case 'line': {
         const [first, second] = shape.dots;
@@ -60,7 +72,7 @@ function drawCurrentSchema() {
 }
 
 function drawCanvas() {
-  fill(255);
+  stroke(`black`);
   rect(canvasLeft, canvasTop, width - canvasLeft, height - canvasTop);
 }
 
