@@ -1,13 +1,13 @@
 const canvasTop = 50;
 const canvasLeft = 120;
-let label, firstInput, secondInput, buttonApply;
+let label, firstInput, secondInput, buttonApply, reference;
 
 /**
  * @returns {[number, number, number]}
  */
 function vectorToArray() {
   return [this.x, this.y, this.z];
-};
+}
 
 /**
  * returns {number}
@@ -31,10 +31,12 @@ Array.prototype.sum = arraySum;
 Array.prototype.multiply = arrayMultiply;
 
 function setup() {
+
   label = createSpan('');
   firstInput = createInput('');
   secondInput = createInput('');
   buttonApply = createButton('Aplicar');
+  reference = createSpan();
   clearState();
   createCanvas(800, 600);
   drawLayout();
@@ -50,10 +52,12 @@ function draw() {
 function mousePressed({x, y}) {
   if (x < canvasLeft || y < canvasTop) return;
 
-  if (isDrawing())
+  if (isDrawing()) {
     addDot(createVector(x, y, 1));
-  if (isSelecting()) {
-    const clicked = getShapes().find(shape => checkDotInsideShape(shape, createVector(x, y)));
+  } else if (isTransforming()) {
+    setReferencePoint(createVector(x, y, 1));
+  } else if (isSelecting()) {
+    const clicked = getShapes().find(shape => checkDotInsideShape(shape, createVector(x, y, 1)));
 
     if (clicked) setSelected(clicked.id);
     else setSelected(null);
@@ -109,6 +113,12 @@ function drawCurrentSchema() {
 function drawCanvas() {
   stroke(`black`);
   rect(canvasLeft, canvasTop, width - canvasLeft, height - canvasTop);
+  if (isTransforming()) {
+    reference.html(`Eixo de referência: (${getReferencePoint().x}, ${getReferencePoint().y})`);
+    reference.position(canvasLeft + 4, canvasTop + 4);
+  } else {
+    reference.html();
+  }
 }
 
 function drawLayout() {
@@ -126,7 +136,20 @@ function drawLayout() {
     label.html('Grau de rotação:');
     label.position(5 * canvasLeft, canvasTop / 3);
   });
-  drawButtonTop('Escala', 2);
+  drawButtonTop('Escala', 2, () => {
+    setScaling();
+    firstInput.show();
+    firstInput.size(28, 16);
+    firstInput.value(0);
+    secondInput.show();
+    secondInput.size(28, 16);
+    secondInput.value(0);
+    secondInput.position(6 * canvasLeft + 32, canvasTop / 3);
+    buttonApply.show();
+    buttonApply.position(6 * canvasLeft + 64, 1);
+    label.html('Razão de escala (x,y):');
+    label.position(5 * canvasLeft - 12, canvasTop / 3);
+  });
   drawButtonTop('Translação', 3, () => {
     setTranslate();
     firstInput.show();
@@ -160,6 +183,7 @@ function drawLayout() {
   drawButtonSide('Triângulo', 1, setDrawingTriangle);
   drawButtonSide('Quadrilátero', 2, setDrawingRectangle);
   drawButtonSide('Circunferência', 3, setDrawingCircle);
+  drawButtonSide('Teste', 4, test);
 }
 
 function drawButtonTop(buttonName, buttonID, onClick) {

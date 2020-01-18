@@ -36,6 +36,7 @@
 /**
  * @typedef {Object} Transforming
  * @property {?Transformation} transformation
+ * @property {Vector} referencePoint
  */
 
 /**
@@ -91,7 +92,7 @@ function isDrawing() {
  * @returns {boolean}
  */
 function isSelecting() {
-  return state.selecting.isSelecting;
+  return state.selecting.isSelecting && !isTransforming();
 }
 
 /**
@@ -204,7 +205,8 @@ function setDrawingCircle() {
  * @param {Transformation} transformation
  */
 function setTransformation(transformation) {
-  state.transforming = {transformation};
+  state.transforming.transformation = transformation;
+  state.transforming.referencePoint = createVector(0, 0, 1);
 }
 
 /**
@@ -218,6 +220,7 @@ function setRotate() {
 function setTranslate() {
   setTransformation('translate')
 }
+
 /**
  */
 function setScaling() {
@@ -229,6 +232,20 @@ function setScaling() {
  */
 function getTransformation() {
   return state.transforming.transformation;
+}
+
+/**
+ * @returns {Vector}
+ */
+function getReferencePoint() {
+  return state.transforming.referencePoint;
+}
+
+/**
+ * @param {Vector} referencePoint
+ */
+function setReferencePoint(referencePoint) {
+  state.transforming.referencePoint = referencePoint;
 }
 
 /**
