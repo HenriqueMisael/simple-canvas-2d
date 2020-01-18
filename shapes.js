@@ -55,6 +55,25 @@ function intersects(firstShapeDot, secondShapeDot, clickedDot, extremeDot) {
 }
 
 /**
+ * @param {Vector} dot
+ * @param {Array<Vector>} dots
+ * @returns {boolean}
+ */
+function checkIntersection(dot, dots) {
+  const extreme = createVector(Number.MAX_SAFE_INTEGER, dot.y);
+
+  let count = intersects(dots[0], dots[dots.length - 1], dot, extreme) ? 1 : 0;
+
+  for (let i = 0; i < dots.length - 1; i++) {
+    if (intersects(dots[i], dots[i + 1], dot, extreme)) {
+      count++;
+    }
+  }
+
+  return count % 2 === 1;
+}
+
+/**
  * @param {Shape} shape
  * @param {Vector} dot
  */
@@ -63,17 +82,18 @@ function checkDotInsideShape(shape, dot) {
   if (shape.type === 'circle') {
     const center = shape.dots[0];
     return Math.sqrt((dot.x - center.x) * (dot.x - center.x) + (dot.y - center.y) * (dot.y - center.y)) < p5.Vector.dist(center, shape.dots[1]);
+  } else if (shape.type === 'line') {
+
+    const [first, second] = shape.dots;
+
+    const tolerance = 5;
+
+    return checkIntersection(dot, [
+      createVector(first.x - tolerance, first.y - tolerance),
+      createVector(first.x - tolerance, first.y + tolerance),
+      createVector(second.x + tolerance, second.y - tolerance),
+      createVector(second.x + tolerance, second.y + tolerance),
+    ])
   }
-
-  const extreme = createVector(Number.MAX_SAFE_INTEGER, dot.y);
-
-  let count = intersects(shape.dots[0], shape.dots[shape.dots.length - 1], dot, extreme) ? 1 : 0;
-
-  for (let i = 0; i < shape.dots.length - 1; i++) {
-    if (intersects(shape.dots[i], shape.dots[i + 1], dot, extreme)) {
-      count++;
-    }
-  }
-
-  return count % 2 === 1;
+  return checkIntersection(dot, shape.dots);
 }

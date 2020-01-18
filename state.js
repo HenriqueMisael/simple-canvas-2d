@@ -90,8 +90,8 @@ function addDot(vector) {
 
   if (state.drawing.dotsLeft === 0) {
     addShape(state.drawing.shapeType, state.dots);
-    state.dots = [];
 
+    state.dots = [];
     state.drawing.isDrawing = false;
     state.selecting.isSelecting = true;
   }
