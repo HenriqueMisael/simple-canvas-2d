@@ -2,6 +2,34 @@ const canvasTop = 50;
 const canvasLeft = 120;
 let label, firstInput, secondInput, buttonApply;
 
+/**
+ * @returns {[number, number, number]}
+ */
+function vectorToArray() {
+  return [this.x, this.y, this.z];
+};
+
+/**
+ * returns {number}
+ */
+function arraySum() {
+  return this.reduce((acc, current) => acc + current, 0);
+}
+
+/**
+ * @param {Array<number>} other
+ * @returns {Array<number>}
+ */
+function arrayMultiply(other) {
+  return this.map((current, index) => current * other[index]);
+}
+
+p5.Vector.prototype.toArray = vectorToArray;
+
+Array.prototype.sum = arraySum;
+
+Array.prototype.multiply = arrayMultiply;
+
 function setup() {
   label = createSpan('');
   firstInput = createInput('');
@@ -23,9 +51,9 @@ function mousePressed({x, y}) {
   if (x < canvasLeft || y < canvasTop) return;
 
   if (isDrawing())
-    addDot(createVector(x, y));
+    addDot(createVector(x, y, 1));
   if (isSelecting()) {
-    const clicked = getShapes().find(shape => checkDotInsideShape(shape, createVector(x, y, 1)));
+    const clicked = getShapes().find(shape => checkDotInsideShape(shape, createVector(x, y)));
 
     if (clicked) setSelected(clicked.id);
     else setSelected(null);
@@ -96,6 +124,7 @@ function drawLayout() {
     buttonApply.show();
     buttonApply.position(6 * canvasLeft + 48, 1);
     label.html('Grau de rotação:');
+    label.position(5 * canvasLeft, canvasTop / 3);
   });
   drawButtonTop('Escala', 2);
   drawButtonTop('Translação', 3, () => {
@@ -110,9 +139,8 @@ function drawLayout() {
     buttonApply.show();
     buttonApply.position(6 * canvasLeft + 64, 1);
     label.html('Deslocamento (x,y):');
+    label.position(5 * canvasLeft - 4, canvasTop / 3);
   });
-  label.position(5 * canvasLeft, canvasTop / 3);
-  label.style('display', 'hidden');
   firstInput.position(6 * canvasLeft, canvasTop / 3);
   firstInput.hide();
   secondInput.position(7 * canvasLeft, canvasTop / 3);

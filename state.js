@@ -65,6 +65,9 @@ function clearState() {
       dotsLeft: 0,
       shapeType: null
     },
+    transforming: {
+      transformation: null
+    },
     dots: [],
     shapes: []
   }
@@ -215,60 +218,21 @@ function setRotate() {
 function setTranslate() {
   setTransformation('translate')
 }
-
 /**
- * @param {[number, number, number]} matrixLine
- * @param {Vector} source
  */
-function calculateCoord(matrixLine, source) {
-  return matrixLine.reduce((acc, value) => acc + (value * source.x + value * source.y + value * source.z), 0);
+function setScaling() {
+  setTransformation('scale')
 }
 
 /**
- * @param {Shape} shape
- * @param {number} angle
+ * @returns {?Transformation}
  */
-function rotate(shape, angle) {
-  const transformationMatrix = [
-    [cos(angle), -sin(angle), 0],
-    [sin(angle), cos(angle), 0],
-    [0, 0, 1]
-  ];
-
-  shape.dots = shape.dots.map((vector) => createVector(
-    calculateCoord(transformationMatrix[0], vector),
-    calculateCoord(transformationMatrix[1], vector),
-    calculateCoord(transformationMatrix[2], vector))
-  );
+function getTransformation() {
+  return state.transforming.transformation;
 }
 
 /**
- * @param {Shape} shape
- * @param {number} dX
- * @param {number} dY
  */
-function doTranslate(shape, dX, dY) {
-  shape.dots = shape.dots.map(({x, y, z}) => createVector(x + dX, y + dY, z));
-}
-
-/**
- * @param {Array<number>} args
- */
-function applyTransformation(args) {
-  if (isTransforming()) {
-    const selected = getSelectedShape();
-    switch (state.transforming.transformation) {
-      case 'rotate':
-        const [angle] = args;
-        rotate(selected, angle);
-        break;
-      case 'translate':
-        const [dX, dY] = args;
-        doTranslate(selected, dX, dY);
-        break;
-      default:
-        console.log('Transformação desconhecida.');
-    }
-    state.transforming.transformation = null;
-  }
+function clearTransformation() {
+  state.transforming.transformation = null;
 }
