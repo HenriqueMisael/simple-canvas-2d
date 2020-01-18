@@ -39,19 +39,32 @@
 /**
  * @type {State}
  */
-const state = {
-  selecting: {
-    isSelecting: true,
-    selected: null
-  },
-  drawing: {
-    isDrawing: false,
-    dotsLeft: 0,
-    shapeType: null
-  },
-  dots: [],
-  shapes: []
-};
+let state;
+
+/**
+ */
+function clearState() {
+  state = {
+    selecting: {
+      isSelecting: true,
+      selected: null
+    },
+    drawing: {
+      isDrawing: false,
+      dotsLeft: 0,
+      shapeType: null
+    },
+    dots: [],
+    shapes: []
+  }
+}
+
+/**
+ * @param {?function({State})} filter
+ */
+function printState(filter = s => s) {
+  console.log(filter(state));
+}
 
 /**
  * @returns {boolean}
@@ -92,6 +105,7 @@ function addDot(vector) {
     addShape(state.drawing.shapeType, state.dots);
 
     state.dots = [];
+    state.drawing.shapeType = null;
     state.drawing.isDrawing = false;
     state.selecting.isSelecting = true;
   }

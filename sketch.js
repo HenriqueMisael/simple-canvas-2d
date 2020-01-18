@@ -2,11 +2,11 @@ const canvasTop = 50;
 const canvasLeft = 120;
 
 function setup() {
+  clearState();
   createCanvas(800, 600);
   drawLayout();
   setFrameRate(5);
 }
-
 function draw() {
   drawCanvas();
   drawShapes();
@@ -80,7 +80,7 @@ function drawLayout() {
   background(240);
   drawCanvas();
 
-  drawButtonTop('Clear', 0);
+  drawButtonTop('Clear', 0, clearState);
   drawButtonTop('Rotação', 1);
   drawButtonTop('Escala', 2);
   drawButtonTop('Translação', 3);
