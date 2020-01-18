@@ -2,6 +2,7 @@
  * @typedef {Object} Vector
  * @property {number} x
  * @property {number} y
+ * @property {number} z
  */
 
 /**
@@ -29,9 +30,19 @@
  */
 
 /**
+ * @typedef {'rotate' | 'scale' | 'translate'} Transformation
+ */
+
+/**
+ * @typedef {Object} Transforming
+ * @property {?Transformation} transformation
+ */
+
+/**
  * @typedef {Object} State
  * @property {Selecting} selecting
  * @property {Drawing} drawing
+ * @property {Transforming} transforming
  * @property {Array<Vector>} dots
  * @property {Array<Shape>} shapes
  */
@@ -78,6 +89,13 @@ function isDrawing() {
  */
 function isSelecting() {
   return state.selecting.isSelecting;
+}
+
+/**
+ * @returns {boolean}
+ */
+function isTransforming() {
+  return !!state.transforming.transformation;
 }
 
 /**
@@ -129,6 +147,16 @@ function setSelected(shapeID) {
 }
 
 /**
+ * @return {?Shape}
+ */
+function getSelectedShape() {
+  if (!state.selecting.selected) {
+    return null;
+  }
+  return state.shapes.find(({id}) => id === state.selecting.selected);
+}
+
+/**
  * @param {Shape} shape
  */
 function isShapeSelected({id}) {
@@ -168,4 +196,54 @@ function setDrawingRectangle() {
  */
 function setDrawingCircle() {
   setDrawing('circle', 2);
+}
+
+/**
+ * @param {Transformation} transformation
+ */
+function setTransformation(transformation) {
+  state.transforming = {transformation};
+}
+
+/**
+ */
+function setRotate() {
+  setTransformation('rotate')
+}
+
+/**
+ * @param {[number, number, number]} matrixLine
+ * @param {Vector} source
+ */
+function calculateCoord(matrixLine, source) {
+  return matrixLine.reduce((acc, value) => acc + (value * source.x + value * source.y + value * source.z), 0);
+}
+
+/**
+ * @param {Array<number>} args
+ */
+function applyTransformation(args) {
+  if (isTransforming()) {
+    const selected = getSelectedShape();
+    switch (state.transforming.transformation) {
+      case 'rotate':
+        const [angle] = args;
+        const transformationMatrix = [
+          [cos(angle), -sin(angle), 0],
+          [sin(angle), cos(angle), 0],
+          [0, 0, 1]
+        ];
+
+        selected.dots = selected.dots.map((vector) => createVector(
+          calculateCoord(transformationMatrix[0], vector),
+          calculateCoord(transformationMatrix[1], vector),
+          calculateCoord(transformationMatrix[2], vector))
+        );
+
+        break;
+      default:
+        console.log('Transformação desconhecida.');
+    }
+    state.transforming.transformation = null;
+  }
 }
