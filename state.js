@@ -135,14 +135,13 @@ function addDot(vector) {
  */
 function addShape(type, dots) {
   const id = `${type}${state.shapes.filter((shape) => shape.type === type).length}`;
-  state.shapes.push({id, type, dots});
+  state.shapes.push({id, type, dots: [...dots]});
 }
 
 /**
  * @param {?string} shapeID
  */
 function setSelected(shapeID) {
-  // state.selecting.isSelecting = false;
   state.selecting.selected = shapeID;
 }
 
@@ -212,11 +211,44 @@ function setRotate() {
 }
 
 /**
+ */
+function setTranslate() {
+  setTransformation('translate')
+}
+
+/**
  * @param {[number, number, number]} matrixLine
  * @param {Vector} source
  */
 function calculateCoord(matrixLine, source) {
   return matrixLine.reduce((acc, value) => acc + (value * source.x + value * source.y + value * source.z), 0);
+}
+
+/**
+ * @param {Shape} shape
+ * @param {number} angle
+ */
+function rotate(shape, angle) {
+  const transformationMatrix = [
+    [cos(angle), -sin(angle), 0],
+    [sin(angle), cos(angle), 0],
+    [0, 0, 1]
+  ];
+
+  shape.dots = shape.dots.map((vector) => createVector(
+    calculateCoord(transformationMatrix[0], vector),
+    calculateCoord(transformationMatrix[1], vector),
+    calculateCoord(transformationMatrix[2], vector))
+  );
+}
+
+/**
+ * @param {Shape} shape
+ * @param {number} dX
+ * @param {number} dY
+ */
+function doTranslate(shape, dX, dY) {
+  shape.dots = shape.dots.map(({x, y, z}) => createVector(x + dX, y + dY, z));
 }
 
 /**
@@ -228,18 +260,11 @@ function applyTransformation(args) {
     switch (state.transforming.transformation) {
       case 'rotate':
         const [angle] = args;
-        const transformationMatrix = [
-          [cos(angle), -sin(angle), 0],
-          [sin(angle), cos(angle), 0],
-          [0, 0, 1]
-        ];
-
-        selected.dots = selected.dots.map((vector) => createVector(
-          calculateCoord(transformationMatrix[0], vector),
-          calculateCoord(transformationMatrix[1], vector),
-          calculateCoord(transformationMatrix[2], vector))
-        );
-
+        rotate(selected, angle);
+        break;
+      case 'translate':
+        const [dX, dY] = args;
+        doTranslate(selected, dX, dY);
         break;
       default:
         console.log('Transformação desconhecida.');

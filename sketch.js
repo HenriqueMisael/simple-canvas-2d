@@ -98,7 +98,19 @@ function drawLayout() {
     label.html('Grau de rotação:');
   });
   drawButtonTop('Escala', 2);
-  drawButtonTop('Translação', 3);
+  drawButtonTop('Translação', 3, () => {
+    setTranslate();
+    firstInput.show();
+    firstInput.size(28, 16);
+    firstInput.value(0);
+    secondInput.show();
+    secondInput.size(28, 16);
+    secondInput.value(0);
+    secondInput.position(6 * canvasLeft + 32, canvasTop / 3);
+    buttonApply.show();
+    buttonApply.position(6 * canvasLeft + 64, 1);
+    label.html('Deslocamento (x,y):');
+  });
   label.position(5 * canvasLeft, canvasTop / 3);
   label.style('display', 'hidden');
   firstInput.position(6 * canvasLeft, canvasTop / 3);
@@ -109,7 +121,7 @@ function drawLayout() {
   buttonApply.hide();
   buttonApply.size(64, 48);
   buttonApply.mousePressed(() => {
-    applyTransformation([firstInput.value(), secondInput.value()]);
+    applyTransformation([Number(firstInput.value()), Number(secondInput.value())]);
     label.html('');
     firstInput.hide();
     secondInput.hide();

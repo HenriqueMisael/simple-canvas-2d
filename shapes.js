@@ -21,8 +21,10 @@ function drawShapeLine({x: x0, y: y0}, {x: x1, y: y1}) {
  * @param {Array<Vector>} dots
  */
 function drawShapePolygon(dots) {
-  dots.push(dots[0]);
-  drawLinkingLines(dots);
+
+  const linkingDots = [...dots, dots[0]];
+
+  drawLinkingLines(linkingDots);
 }
 
 /**
