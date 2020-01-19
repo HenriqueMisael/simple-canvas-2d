@@ -17,9 +17,9 @@ function transposeMatrix(matrix) {
  */
 function multiplyMatrixMatrix(first, second) {
 
-  const transposed = transposeMatrix(second);
+  const transposed = transposeMatrix(first);
 
-  return first.map(column => createVector(
+  return second.map(column => createVector(
     transposed[0].multiply(column.toArray()).sum(),
     transposed[1].multiply(column.toArray()).sum(),
     transposed[2].multiply(column.toArray()).sum(),
@@ -87,10 +87,10 @@ function doScale(shape, ratioX, ratioY) {
   const referencePoint = getReferencePoint();
   const {y, x} = referencePoint;
   shape.dots = multiplyMatrices([
-    shape.dots,
-    getTranslateMatrix(-x, -y),
+    getTranslateMatrix(x, y),
     getScaleMatrix(ratioX, ratioY),
-    getTranslateMatrix(x, y)
+    getTranslateMatrix(-x, -y),
+    shape.dots,
   ]);
 }
 
