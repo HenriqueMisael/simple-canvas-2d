@@ -96,17 +96,26 @@ function drawShapes() {
 }
 
 function drawCurrentSchema() {
-  strokeWeight(10);
-  stroke('red');
-  const dots = getDots();
-  dots.forEach(({x, y}) => {
+
+  if (isDrawing()) {
+    strokeWeight(10);
+    stroke('red');
+    const dots = getDots();
+    dots.forEach(({x, y}) => {
+      point(x, y);
+    });
+    strokeWeight(1);
+    stroke(180);
+    if (dots.length > 1) {
+      drawLinkingLines(dots);
+    }
+  } else if (isTransforming()) {
+    strokeWeight(10);
+    stroke('blue');
+    const {x, y} = getReferencePoint();
     point(x, y);
-  });
-  strokeWeight(1);
-  stroke(180);
-  if (dots.length > 1) {
-    drawLinkingLines(dots);
   }
+  strokeWeight(1);
   stroke('black');
 }
 
@@ -183,7 +192,6 @@ function drawLayout() {
   drawButtonSide('Triângulo', 1, setDrawingTriangle);
   drawButtonSide('Quadrilátero', 2, setDrawingRectangle);
   drawButtonSide('Circunferência', 3, setDrawingCircle);
-  drawButtonSide('Teste', 4, test);
 }
 
 function drawButtonTop(buttonName, buttonID, onClick) {

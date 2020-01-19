@@ -11,24 +11,6 @@ function transposeMatrix(matrix) {
 }
 
 /**
- * @param {[Vector, Vector, Vector]} matrix
- * @param {Vector} vector
- */
-function multiplyMatrixVector(matrix, vector) {
-
-  const vectorArray = vector.toArray();
-  const transposedMatrix = transposeMatrix(matrix);
-
-  const x1 = transposedMatrix[0].multiply(vectorArray).sum();
-  const y1 = transposedMatrix[1].multiply(vectorArray).sum();
-  const z1 = transposedMatrix[2].multiply(vectorArray).sum();
-
-  return createVector(
-    x1, y1, z1
-  )
-}
-
-/**
  * @param {[Vector, Vector, Vector]} first
  * @param {Array<Vector>} second
  * @return {[Vector, Vector, Vector]}
@@ -53,23 +35,6 @@ function multiplyMatrices(matrices) {
     createVector(0, 1, 0),
     createVector(0, 0, 1),
   ]);
-}
-
-/**
- */
-function test() {
-  const matrix = [
-    createVector(3, 3, 1),
-    createVector(6, 3, 1),
-    createVector(6, 5, 1),
-  ];
-  console.log('before', matrix);
-  console.log('after', multiplyMatrices([
-    matrix,
-    getTranslateMatrix(-3, -3),
-    getScaleMatrix(2, 1),
-    getTranslateMatrix(3, 3),
-  ]));
 }
 
 /**
@@ -150,10 +115,10 @@ function doRotate(shape, angle) {
  * @param {number} dY
  */
 function doTranslate(shape, dX, dY) {
-  shape.dots = shape.dots.map(vector => multiplyMatrixVector(
-    getTranslateMatrix(dX, dY),
-    vector)
-  );
+  shape.dots = multiplyMatrices([
+    shape.dots,
+    getTranslateMatrix(dX, dY)
+  ])
 }
 
 /**
@@ -162,6 +127,7 @@ function doTranslate(shape, dX, dY) {
 function applyTransformation(args) {
   if (isTransforming()) {
     const selected = getSelectedShape();
+    console.log('before', selected.dots);
     switch (getTransformation()) {
       case 'scale':
         const [ratioX, ratioY] = args;
@@ -178,6 +144,7 @@ function applyTransformation(args) {
       default:
         console.log('Transformação desconhecida.');
     }
+    console.log('after', selected.dots);
     clearTransformation();
   }
 }
