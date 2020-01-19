@@ -96,17 +96,28 @@ function doScale(shape, ratioX, ratioY) {
 
 /**
  * @param {Shape} shape
- * @param {number} angle
+ * @param {[Vector, Vector, Vector]} transformationMatrix
  */
-function doRotate(shape, angle) {
+function doTransformationFromReferencePoint(shape, transformationMatrix) {
   const referencePoint = getReferencePoint();
   const {y, x} = referencePoint;
   shape.dots = multiplyMatrices([
-    shape.dots,
+    getTranslateMatrix(x, y),
+    transformationMatrix,
     getTranslateMatrix(-x, -y),
-    getRotationMatrix(angle),
-    getTranslateMatrix(x, y)
+    shape.dots,
   ]);
+}
+
+/**
+ * @param {Shape} shape
+ * @param {number} angle
+ */
+function doRotate(shape, angle) {
+  doTransformationFromReferencePoint(
+    shape,
+    getRotationMatrix(angle)
+  );
 }
 
 /**
@@ -115,10 +126,10 @@ function doRotate(shape, angle) {
  * @param {number} dY
  */
 function doTranslate(shape, dX, dY) {
-  shape.dots = multiplyMatrices([
-    shape.dots,
+  doTransformationFromReferencePoint(
+    shape,
     getTranslateMatrix(dX, dY)
-  ])
+  )
 }
 
 /**
@@ -127,7 +138,6 @@ function doTranslate(shape, dX, dY) {
 function applyTransformation(args) {
   if (isTransforming()) {
     const selected = getSelectedShape();
-    console.log('before', selected.dots);
     switch (getTransformation()) {
       case 'scale':
         const [ratioX, ratioY] = args;
@@ -144,7 +154,6 @@ function applyTransformation(args) {
       default:
         console.log('Transformação desconhecida.');
     }
-    console.log('after', selected.dots);
     clearTransformation();
   }
 }
