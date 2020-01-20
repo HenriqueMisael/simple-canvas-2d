@@ -173,6 +173,8 @@ function drawLayout() {
     label.html('Deslocamento (x,y):');
     label.position(5 * canvasLeft - 4, canvasTop / 3);
   });
+  drawButtonTop('');
+
   firstInput.position(6 * canvasLeft, canvasTop / 3);
   firstInput.hide();
   secondInput.position(7 * canvasLeft, canvasTop / 3);
@@ -191,7 +193,41 @@ function drawLayout() {
   drawButtonSide('Reta', 0, setDrawingLine);
   drawButtonSide('Triângulo', 1, setDrawingTriangle);
   drawButtonSide('Quadrilátero', 2, setDrawingRectangle);
-  drawButtonSide('Circunferência', 3, setDrawingCircle);
+  drawButtonSide('Pentágono', 3, () => setDrawingPolygon(5));
+  drawButtonSide('Hexágono', 4, () => setDrawingPolygon(6));
+  drawButtonSide('Heptágono', 5, () => setDrawingPolygon(7));
+  drawButtonSide('Circunferência', 6, setDrawingCircle);
+
+  const helpDiv = createDiv(`
+    <span>
+      Os botões à esquerda servem para criar formas diversas. Para desenhar, selecione uma forma e clique no canvas nos locais em que deseja criar os pontos da forma escolhida.
+    </span>
+    <ul>
+      <li>Retas são formas com dois pontos, e uma linha é desenhada ligando-os.</li>        
+      <li>Polígonos são formas com n pontos, com uma linha ligando cada ponto subsequente, incluindo o primeiro e o último.</li>
+      <ul>        
+        <li>Triângulos são polígonos de três pontos</li>
+        <li>Quadriláteros são polígonos de quatro pontos</li>
+        <li>...</li>
+      </ul>
+      <li>
+        Círculos são formas com dois pontos, onde o primeiro ponto define o centro da reta e o segundo se encontra sobre o seu perímetro. A distância entre os dois pontos é o raio da circunferência.
+      </li>        
+    </ul>
+    <span>
+      Os botões acima representam ações sobre formas no canvas.
+    </span>
+    <ul>
+      <li>O primeiro botão <strong>Clear</strong> remove todas as formas anteriormente definidas.</li>
+      <li>Os botões seguintes realizam operações sobre uma forma selecionada antes de escolher a transformação. Após selecionar a transformação, é possível escolher um ponto de referência para realizar as operações (o padrão é utilizar a origem).</li>
+      <ul>
+        <li>O segundo botão <strong>Rotação</strong> requer um ângulo (em graus) para rotacionar ao redor do eixo de referência</li>
+        <li>O terceiro botão <strong>Escala</strong> permite informar uma razão para escalonar o objeto em X e Y individualmente</li>
+        <li>O quarto botão <strong>Translação</strong> requer uma quantidade de pixels para movimentar o objeto no eixo X e no eixo Y</li>
+      </ul>
+    </ul>
+  `);
+  helpDiv.position(0, height);
 }
 
 function drawButtonTop(buttonName, buttonID, onClick) {

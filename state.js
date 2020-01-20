@@ -184,15 +184,22 @@ function setDrawingLine() {
 }
 
 /**
+ * @param {number} dotsCount
+ */
+function setDrawingPolygon(dotsCount) {
+  setDrawing('polygon', dotsCount);
+}
+
+/**
  */
 function setDrawingTriangle() {
-  setDrawing('polygon', 3);
+  setDrawingPolygon(3)
 }
 
 /**
  */
 function setDrawingRectangle() {
-  setDrawing('polygon', 4);
+  setDrawingPolygon(4);
 }
 
 /**
