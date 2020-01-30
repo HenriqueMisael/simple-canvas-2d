@@ -1,6 +1,7 @@
-const canvasTop = 50;
-const canvasLeft = 120;
-let label, firstInput, secondInput, buttonApply, reference;
+const canvasTop = 64;
+const canvasLeft = 128;
+let label, rotationInput, scaleXInput, scaleYInput, translateXInput, translateYInput,
+  applyRotationButton, applyScaleButton, applyTranslateButton, reference;
 
 /**
  * @returns {[number, number, number]}
@@ -31,17 +32,57 @@ Array.prototype.sum = arraySum;
 Array.prototype.multiply = arrayMultiply;
 
 function setup() {
-
-  label = createSpan('');
-  firstInput = createInput('');
-  secondInput = createInput('');
-  buttonApply = createButton('Aplicar');
   reference = createSpan();
+  const referenceButton = createButton('Mudar referêcia');
+  referenceButton.mousePressed(() => setReferencePoint(null));
+  createDivButtonTop(canvasTop, canvasLeft, 0, 0, [reference, referenceButton]);
+
   clearState();
-  createCanvas(800, 600);
+  createCanvas(800, 400);
   drawLayout();
-  setFrameRate(5);
+  setFrameRate(30);
   angleMode(DEGREES);
+}
+
+function createTransformationInput(label) {
+  const input = createInput(0);
+  input.size(32, 12);
+  const labelElement = createSpan(label);
+
+  const div = createDivChildren([labelElement, input]);
+  labelElement.parent(div);
+  input.parent(div);
+
+  div.style('padding', '4px');
+
+  return [input, div];
+}
+
+function createDivChildren(children) {
+  const div = createDiv();
+  div.style('display', 'flex');
+  div.style('justify-content', 'space-between');
+
+  children.forEach(child => child.parent(div));
+  return div;
+}
+
+function createDivFlex(direction, border) {
+  const div = createDiv();
+  div.style('display', 'flex');
+  div.style('justify-content', 'center');
+  div.style('align-items', 'center');
+  div.style('flex-direction', direction);
+  div.style('border', border ? 'solid thin black' : '');
+  return div;
+}
+
+function createDivButtonTop(height, width, x, y, children = [], direction = 'column') {
+  const div = createDivFlex(direction, true);
+  div.position(x, y);
+  div.size(width, height);
+  children.forEach(child => child.parent(div));
+  return div
 }
 
 function draw() {
@@ -50,11 +91,15 @@ function draw() {
 }
 
 function mousePressed({x, y}) {
-  if (x < canvasLeft || y < canvasTop) return;
+
+  x -= canvasLeft;
+  y -= canvasTop;
+
+  if (x < 0 || y < 0) return;
 
   if (isDrawing()) {
     addDot(createVector(x, y, 1));
-  } else if (isTransforming()) {
+  } else if (isChangingReference()) {
     setReferencePoint(createVector(x, y, 1));
   } else if (isSelecting()) {
     const clicked = getShapes().find(shape => checkDotInsideShape(shape, createVector(x, y, 1)));
@@ -109,7 +154,7 @@ function drawCurrentSchema() {
     if (dots.length > 1) {
       drawLinkingLines(dots);
     }
-  } else if (isTransforming()) {
+  } else if (!isChangingReference()) {
     strokeWeight(10);
     stroke('blue');
     const {x, y} = getReferencePoint();
@@ -121,83 +166,19 @@ function drawCurrentSchema() {
 
 function drawCanvas() {
   stroke(`black`);
-  rect(canvasLeft, canvasTop, width - canvasLeft, height - canvasTop);
-  if (isTransforming()) {
-    reference.html(`Eixo de referência: (${getReferencePoint().x}, ${getReferencePoint().y})`);
-    reference.position(canvasLeft + 4, canvasTop + 4);
-  } else {
-    reference.html();
-  }
+  rect(0, 0, width, height);
+
+  const {x, y} = isChangingReference() ? getMouse() : getReferencePoint();
+  reference.html(`(${x}, ${y})`);
 }
 
-function drawLayout() {
-  background(240);
-  drawCanvas();
+function getMouse() {
+  const x = Math.ceil(mouseX);
+  const y = Math.ceil(mouseY);
+  return {x, y}
+}
 
-  drawButtonTop('Clear', 0, clearState);
-  drawButtonTop('Rotação', 1, () => {
-    setRotate();
-    firstInput.show();
-    firstInput.size(32, 16);
-    firstInput.value(0);
-    buttonApply.show();
-    buttonApply.position(6 * canvasLeft + 48, 1);
-    label.html('Grau de rotação:');
-    label.position(5 * canvasLeft, canvasTop / 3);
-  });
-  drawButtonTop('Escala', 2, () => {
-    setScaling();
-    firstInput.show();
-    firstInput.size(28, 16);
-    firstInput.value(0);
-    secondInput.show();
-    secondInput.size(28, 16);
-    secondInput.value(0);
-    secondInput.position(6 * canvasLeft + 32, canvasTop / 3);
-    buttonApply.show();
-    buttonApply.position(6 * canvasLeft + 64, 1);
-    label.html('Razão de escala (x,y):');
-    label.position(5 * canvasLeft - 12, canvasTop / 3);
-  });
-  drawButtonTop('Translação', 3, () => {
-    setTranslate();
-    firstInput.show();
-    firstInput.size(28, 16);
-    firstInput.value(0);
-    secondInput.show();
-    secondInput.size(28, 16);
-    secondInput.value(0);
-    secondInput.position(6 * canvasLeft + 32, canvasTop / 3);
-    buttonApply.show();
-    buttonApply.position(6 * canvasLeft + 64, 1);
-    label.html('Deslocamento (x,y):');
-    label.position(5 * canvasLeft - 4, canvasTop / 3);
-  });
-  drawButtonTop('');
-
-  firstInput.position(6 * canvasLeft, canvasTop / 3);
-  firstInput.hide();
-  secondInput.position(7 * canvasLeft, canvasTop / 3);
-  secondInput.hide();
-  secondInput.size(48, 16);
-  buttonApply.hide();
-  buttonApply.size(64, 48);
-  buttonApply.mousePressed(() => {
-    applyTransformation([Number(firstInput.value()), Number(secondInput.value())]);
-    label.html('');
-    firstInput.hide();
-    secondInput.hide();
-    buttonApply.hide();
-  });
-
-  drawButtonSide('Reta', 0, setDrawingLine);
-  drawButtonSide('Triângulo', 1, setDrawingTriangle);
-  drawButtonSide('Quadrilátero', 2, setDrawingRectangle);
-  drawButtonSide('Pentágono', 3, () => setDrawingPolygon(5));
-  drawButtonSide('Hexágono', 4, () => setDrawingPolygon(6));
-  drawButtonSide('Heptágono', 5, () => setDrawingPolygon(7));
-  drawButtonSide('Circunferência', 6, setDrawingCircle);
-
+function drawHelpDiv() {
   const helpDiv = createDiv(`
     <span>
       Os botões à esquerda servem para criar formas diversas. Para desenhar, selecione uma forma e clique no canvas nos locais em que deseja criar os pontos da forma escolhida.
@@ -218,20 +199,54 @@ function drawLayout() {
       Os botões acima representam ações sobre formas no canvas.
     </span>
     <ul>
-      <li>O primeiro botão <strong>Clear</strong> remove todas as formas anteriormente definidas.</li>
-      <li>Os botões seguintes realizam operações sobre uma forma selecionada antes de escolher a transformação. Após selecionar a transformação, é possível escolher um ponto de referência para realizar as operações (o padrão é utilizar a origem).</li>
+      <li>O primeiro botão <strong>Mudar referência</strong> permite alterar o ponto de referência utilizado para escalonamento e rotação.</li>
+      <li>O segundo botão <strong>Clear</strong> remove todas as formas anteriormente definidas.</li>
+      <li>Os botões seguintes realizam operações sobre uma forma selecionada.</li>
       <ul>
-        <li>O segundo botão <strong>Rotação</strong> requer um ângulo (em graus) para rotacionar ao redor do eixo de referência</li>
-        <li>O terceiro botão <strong>Escala</strong> permite informar uma razão para escalonar o objeto em X e Y individualmente</li>
-        <li>O quarto botão <strong>Translação</strong> requer uma quantidade de pixels para movimentar o objeto no eixo X e no eixo Y</li>
+        <li>O terceiro botão <strong>Rotação</strong> requer um ângulo (em graus) para rotacionar ao redor do eixo de referência</li>
+        <li>O quarto botão <strong>Escala</strong> permite informar uma razão para escalonar o objeto em X e Y individualmente</li>
+        <li>O quinto botão <strong>Translação</strong> requer uma quantidade de pixels para movimentar o objeto no eixo X e no eixo Y</li>
       </ul>
     </ul>
   `);
-  helpDiv.position(0, height);
+  helpDiv.position(0, height + canvasTop);
 }
 
-function drawButtonTop(buttonName, buttonID, onClick) {
-  drawButton(buttonName, 0, (buttonID + 1) * canvasLeft, onClick);
+function drawLayout() {
+  background(240);
+  drawCanvas();
+
+  let rotationDiv, scaleXDiv, scaleYDiv, translateXDiv, translateYDiv;
+
+  label = createSpan('');
+  [rotationInput, rotationDiv] = createTransformationInput('Graus °');
+  [scaleXInput, scaleXDiv] = createTransformationInput('dX');
+  [scaleYInput, scaleYDiv] = createTransformationInput('dY');
+  [translateXInput, translateXDiv] = createTransformationInput('Sx');
+  [translateYInput, translateYDiv] = createTransformationInput('Sy');
+
+  applyRotationButton = createButton('Rotacionar');
+  applyRotationButton.mousePressed(() => applyRotate(Number(rotationInput.value())));
+  applyScaleButton = createButton('Escalonar');
+  applyScaleButton.mousePressed(() => applyScale(scaleXInput.value(), scaleYInput.value()))
+  applyTranslateButton = createButton('Transladar');
+  applyTranslateButton.mousePressed(() => applyTranslate(translateXInput.value(), translateYInput.value()))
+  const clearButton = createButton('Clear');
+  clearButton.mousePressed(clearState);
+
+  createDivButtonTop(canvasTop, canvasLeft, canvasLeft, 0, [clearButton]);
+  createDivButtonTop(canvasTop, canvasLeft, canvasLeft * 2, 0, [rotationDiv, applyRotationButton]);
+  createDivButtonTop(canvasTop, canvasLeft, canvasLeft * 3, 0, [createDivChildren([scaleXDiv, scaleYDiv]), applyScaleButton]);
+  createDivButtonTop(canvasTop, canvasLeft, canvasLeft * 4, 0, [createDivChildren([translateXDiv, translateYDiv]), applyTranslateButton]);
+
+  drawButtonSide('Reta', 0, setDrawingLine);
+  drawButtonSide('Triângulo', 1, setDrawingTriangle);
+  drawButtonSide('Quadrilátero', 2, setDrawingRectangle);
+  drawButtonSide('Pentágono', 3, () => setDrawingPolygon(5));
+  drawButtonSide('Hexágono', 4, () => setDrawingPolygon(6));
+  drawButtonSide('Circunferência', 5, setDrawingCircle);
+
+  drawHelpDiv();
 }
 
 function drawButtonSide(buttonName, buttonID, onClick) {

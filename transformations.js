@@ -80,6 +80,21 @@ function getTranslateMatrix(dX, dY) {
 
 /**
  * @param {Shape} shape
+ * @param {[Vector, Vector, Vector]} transformationMatrix
+ */
+function doTransformationFromReferencePoint(shape, transformationMatrix) {
+  const referencePoint = getReferencePoint();
+  const {y, x} = referencePoint;
+  shape.dots = multiplyMatrices([
+    getTranslateMatrix(x, y),
+    transformationMatrix,
+    getTranslateMatrix(-x, -y),
+    shape.dots,
+  ]);
+}
+
+/**
+ * @param {Shape} shape
  * @param {number} ratioX
  * @param {number} ratioY
  */
@@ -89,21 +104,6 @@ function doScale(shape, ratioX, ratioY) {
   shape.dots = multiplyMatrices([
     getTranslateMatrix(x, y),
     getScaleMatrix(ratioX, ratioY),
-    getTranslateMatrix(-x, -y),
-    shape.dots,
-  ]);
-}
-
-/**
- * @param {Shape} shape
- * @param {[Vector, Vector, Vector]} transformationMatrix
- */
-function doTransformationFromReferencePoint(shape, transformationMatrix) {
-  const referencePoint = getReferencePoint();
-  const {y, x} = referencePoint;
-  shape.dots = multiplyMatrices([
-    getTranslateMatrix(x, y),
-    transformationMatrix,
     getTranslateMatrix(-x, -y),
     shape.dots,
   ]);
@@ -133,27 +133,24 @@ function doTranslate(shape, dX, dY) {
 }
 
 /**
- * @param {Array<number>} args
+ * @param {number} ratioX
+ * @param {number} ratioY
  */
-function applyTransformation(args) {
-  if (isTransforming()) {
-    const selected = getSelectedShape();
-    switch (getTransformation()) {
-      case 'scale':
-        const [ratioX, ratioY] = args;
-        doScale(selected, ratioX, ratioY);
-        break;
-      case 'rotate':
-        const [angle] = args;
-        doRotate(selected, angle);
-        break;
-      case 'translate':
-        const [dX, dY] = args;
-        doTranslate(selected, dX, dY);
-        break;
-      default:
-        console.log('Transformação desconhecida.');
-    }
-    clearTransformation();
-  }
+function applyScale(ratioX, ratioY) {
+  doScale(getSelectedShape(), ratioX, ratioY);
+}
+
+/**
+ * @param {number} angle
+ */
+function applyRotate(angle) {
+  doRotate(getSelectedShape(), angle)
+}
+
+/**
+ * @param {number} dX
+ * @param {number} dY
+ */
+function applyTranslate(dX, dY) {
+  doTranslate(getSelectedShape(), dX, dY);
 }

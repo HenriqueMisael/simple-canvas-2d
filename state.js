@@ -35,7 +35,6 @@
 
 /**
  * @typedef {Object} Transforming
- * @property {?Transformation} transformation
  * @property {Vector} referencePoint
  */
 
@@ -67,7 +66,7 @@ function clearState() {
       shapeType: null
     },
     transforming: {
-      transformation: null
+      referencePoint: createVector(0, 0, 1),
     },
     dots: [],
     shapes: []
@@ -92,14 +91,14 @@ function isDrawing() {
  * @returns {boolean}
  */
 function isSelecting() {
-  return state.selecting.isSelecting && !isTransforming();
+  return state.selecting.isSelecting && !isChangingReference();
 }
 
 /**
  * @returns {boolean}
  */
-function isTransforming() {
-  return !!state.transforming.transformation;
+function isChangingReference() {
+  return !state.transforming.referencePoint;
 }
 
 /**
@@ -209,39 +208,6 @@ function setDrawingCircle() {
 }
 
 /**
- * @param {Transformation} transformation
- */
-function setTransformation(transformation) {
-  state.transforming.transformation = transformation;
-  state.transforming.referencePoint = createVector(0, 0, 1);
-}
-
-/**
- */
-function setRotate() {
-  setTransformation('rotate')
-}
-
-/**
- */
-function setTranslate() {
-  setTransformation('translate')
-}
-
-/**
- */
-function setScaling() {
-  setTransformation('scale')
-}
-
-/**
- * @returns {?Transformation}
- */
-function getTransformation() {
-  return state.transforming.transformation;
-}
-
-/**
  * @returns {Vector}
  */
 function getReferencePoint() {
@@ -249,14 +215,8 @@ function getReferencePoint() {
 }
 
 /**
- * @param {Vector} referencePoint
+ * @param {?Vector} referencePoint
  */
 function setReferencePoint(referencePoint) {
   state.transforming.referencePoint = referencePoint;
-}
-
-/**
- */
-function clearTransformation() {
-  state.transforming.transformation = null;
 }
