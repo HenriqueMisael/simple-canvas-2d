@@ -103,9 +103,19 @@ function mousePressed({x, y}) {
     setReferencePoint(createVector(x, y, 1));
   } else if (isSelecting()) {
     const clicked = getShapes().find(shape => checkDotInsideShape(shape, createVector(x, y, 1)));
-
-    if (clicked) setSelected(clicked.id);
-    else setSelected(null);
+    if (keyIsDown(SHIFT)) {
+      if (clicked)
+        addSelected(clicked.id);
+    } else if (keyIsDown(CONTROL)) {
+      if (clicked)
+        removeSelected(clicked.id);
+    } else {
+      if (!clicked) {
+        clearSelected();
+      } else {
+        setSelected(clicked.id);
+      }
+    }
   }
 }
 
@@ -180,34 +190,47 @@ function getMouse() {
 
 function drawHelpDiv() {
   const helpDiv = createDiv(`
-    <span>
-      Os botões à esquerda servem para criar formas diversas. Para desenhar, selecione uma forma e clique no canvas nos locais em que deseja criar os pontos da forma escolhida.
-    </span>
-    <ul>
-      <li>Retas são formas com dois pontos, e uma linha é desenhada ligando-os.</li>        
-      <li>Polígonos são formas com n pontos, com uma linha ligando cada ponto subsequente, incluindo o primeiro e o último.</li>
-      <ul>        
-        <li>Triângulos são polígonos de três pontos</li>
-        <li>Quadriláteros são polígonos de quatro pontos</li>
-        <li>...</li>
-      </ul>
-      <li>
-        Círculos são formas com dois pontos, onde o primeiro ponto define o centro da reta e o segundo se encontra sobre o seu perímetro. A distância entre os dois pontos é o raio da circunferência.
-      </li>        
-    </ul>
-    <span>
-      Os botões acima representam ações sobre formas no canvas.
-    </span>
-    <ul>
-      <li>O primeiro botão <strong>Mudar referência</strong> permite alterar o ponto de referência utilizado para escalonamento e rotação.</li>
-      <li>O segundo botão <strong>Clear</strong> remove todas as formas anteriormente definidas.</li>
-      <li>Os botões seguintes realizam operações sobre uma forma selecionada.</li>
+    <p>
+      <span>
+        Os botões à esquerda servem para criar formas diversas. Para desenhar, selecione uma forma e clique no canvas nos locais em que deseja criar os pontos da forma escolhida.
+      </span>
       <ul>
-        <li>O terceiro botão <strong>Rotação</strong> requer um ângulo (em graus) para rotacionar ao redor do eixo de referência</li>
-        <li>O quarto botão <strong>Escala</strong> permite informar uma razão para escalonar o objeto em X e Y individualmente</li>
-        <li>O quinto botão <strong>Translação</strong> requer uma quantidade de pixels para movimentar o objeto no eixo X e no eixo Y</li>
+        <li>Retas são formas com dois pontos, e uma linha é desenhada ligando-os.</li>        
+        <li>Polígonos são formas com n pontos, com uma linha ligando cada ponto subsequente, incluindo o primeiro e o último.</li>
+        <ul>        
+          <li>Triângulos são polígonos de três pontos</li>
+          <li>Quadriláteros são polígonos de quatro pontos</li>
+          <li>...</li>
+        </ul>
+        <li>
+          Círculos são formas com dois pontos, onde o primeiro ponto define o centro da reta e o segundo se encontra sobre o seu perímetro. A distância entre os dois pontos é o raio da circunferência.
+        </li>        
       </ul>
-    </ul>
+    </p>
+    <p>
+      <span>
+        Os botões acima representam ações sobre formas no canvas.
+      </span>
+      <ul>
+        <li>O primeiro botão <strong>Mudar referência</strong> permite alterar o ponto de referência utilizado para escalonamento e rotação.</li>
+        <li>O segundo botão <strong>Clear</strong> remove todas as formas anteriormente definidas.</li>
+        <li>Os botões seguintes realizam operações sobre uma forma selecionada.</li>
+        <ul>
+          <li>O terceiro botão <strong>Rotação</strong> requer um ângulo (em graus) para rotacionar ao redor do eixo de referência</li>
+          <li>O quarto botão <strong>Escala</strong> permite informar uma razão para escalonar o objeto em X e Y individualmente</li>
+          <li>O quinto botão <strong>Translação</strong> requer uma quantidade de pixels para movimentar o objeto no eixo X e no eixo Y</li>
+        </ul>
+      </ul>
+    </p>
+    <p>
+      Para selecionar uma forma, clique sobre ela.
+    </p>
+    <p>
+      Para selecionar outras após ela sem perder a seleção, segure o botão SHIFT.
+    </p>
+    <p>
+      Para desselecionar apenas uma forma, segure CONTROL e clique sobre ela.    
+    </p>
   `);
   helpDiv.position(0, height + canvasTop);
 }

@@ -26,7 +26,7 @@
 /**
  * @typedef {Object} Selecting
  * @property {boolean} isSelecting
- * @property {?string} selected
+ * @property {Array<string>} selected
  */
 
 /**
@@ -58,7 +58,7 @@ function clearState() {
   state = {
     selecting: {
       isSelecting: true,
-      selected: null
+      selected: []
     },
     drawing: {
       isDrawing: false,
@@ -145,24 +145,50 @@ function addShape(type, dots) {
  * @param {?string} shapeID
  */
 function setSelected(shapeID) {
-  state.selecting.selected = shapeID;
+  state.selecting.selected = [shapeID];
 }
 
 /**
- * @return {?Shape}
+ * @param {string} shapeID
  */
-function getSelectedShape() {
-  if (!state.selecting.selected) {
-    return null;
-  }
+function addSelected(shapeID) {
+  state.selecting.selected.push(shapeID);
+}
+
+/**
+ * @param {string} shapeID
+ */
+function removeSelected(shapeID) {
+  state.selecting.selected = state.selecting.selected.filter(selected => selected !== shapeID);
+}
+
+/**
+ */
+function clearSelected() {
+  state.selecting.selected = [];
+}
+
+
+/**
+ * @param {string} id
+ * @return {Shape}
+ */
+function getShapeByID(id) {
   return state.shapes.find(({id}) => id === state.selecting.selected);
+}
+
+/**
+ * @return {Array<Shape>}
+ */
+function getSelectedShapes() {
+  return state.selecting.selected.map(id => getShapeByID(id));
 }
 
 /**
  * @param {Shape} shape
  */
 function isShapeSelected({id}) {
-  return state.selecting.selected === id;
+  return state.selecting.selected.includes(id);
 }
 
 /**

@@ -137,14 +137,14 @@ function doTranslate(shape, dX, dY) {
  * @param {number} ratioY
  */
 function applyScale(ratioX, ratioY) {
-  doScale(getSelectedShape(), ratioX, ratioY);
+  getSelectedShapes().forEach(shape => doScale(shape, ratioX, ratioY));
 }
 
 /**
  * @param {number} angle
  */
 function applyRotate(angle) {
-  doRotate(getSelectedShape(), angle)
+  getSelectedShapes().forEach(shape => doRotate(shape, angle));
 }
 
 /**
@@ -152,5 +152,5 @@ function applyRotate(angle) {
  * @param {number} dY
  */
 function applyTranslate(dX, dY) {
-  doTranslate(getSelectedShape(), dX, dY);
+  getSelectedShapes().forEach(shape => doTranslate(shape, dX, dY));
 }
