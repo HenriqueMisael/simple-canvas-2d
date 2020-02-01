@@ -119,6 +119,10 @@ function mousePressed({x, y}) {
   }
 }
 
+function keyPressed({key}) {
+  if (keyIsDown(CONTROL) && key.toLowerCase() === 'z') keyIsDown(SHIFT) ? redo() : undo();
+}
+
 function drawShapes() {
   drawCurrentSchema();
 
@@ -251,16 +255,25 @@ function drawLayout() {
   applyRotationButton = createButton('Rotacionar');
   applyRotationButton.mousePressed(() => applyRotate(Number(rotationInput.value())));
   applyScaleButton = createButton('Escalonar');
-  applyScaleButton.mousePressed(() => applyScale(scaleXInput.value(), scaleYInput.value()))
+  applyScaleButton.mousePressed(() => applyScale(scaleXInput.value(), scaleYInput.value()));
   applyTranslateButton = createButton('Transladar');
-  applyTranslateButton.mousePressed(() => applyTranslate(translateXInput.value(), translateYInput.value()))
+  applyTranslateButton.mousePressed(() => applyTranslate(translateXInput.value(), translateYInput.value()));
   const clearButton = createButton('Clear');
   clearButton.mousePressed(clearState);
+  const undoButton = createButton('Desfazer (Ctrl+Z)');
+  undoButton.mousePressed(undo);
+  const redoButton = createButton('Refazer (Ctrl+Shift+Z)');
+  redoButton.mousePressed(undo);
+
+  // const printStackButton = createButton('Print stack');
+  // printStackButton.mousePressed(printStack);
 
   createDivButtonTop(canvasTop, canvasLeft, canvasLeft, 0, [clearButton]);
   createDivButtonTop(canvasTop, canvasLeft, canvasLeft * 2, 0, [rotationDiv, applyRotationButton]);
   createDivButtonTop(canvasTop, canvasLeft, canvasLeft * 3, 0, [createDivChildren([scaleXDiv, scaleYDiv]), applyScaleButton]);
   createDivButtonTop(canvasTop, canvasLeft, canvasLeft * 4, 0, [createDivChildren([translateXDiv, translateYDiv]), applyTranslateButton]);
+  // createDivButtonTop(canvasTop, canvasLeft, canvasLeft * 5, 0, [printStackButton]);
+  createDivButtonTop(canvasTop, canvasLeft * 1.5, canvasLeft * 5, 0, [undoButton, redoButton]);
 
   drawButtonSide('Reta', 0, setDrawingLine);
   drawButtonSide('Triângulo', 1, setDrawingTriangle);

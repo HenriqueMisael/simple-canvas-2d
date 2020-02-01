@@ -48,6 +48,40 @@
  */
 
 /**
+ * @typedef OperationsStack
+ * @property {Array<State>} previous
+ * @property {number} cursor
+ * @property {function():State} addOperation
+ * @property {function()} goBack
+ * @property {function()} goForward
+ *
+ * @type {OperationsStack}
+ */
+const operationsStack = {
+  previous: [],
+  cursor: -1,
+  addOperation: () => {
+
+    if (operationsStack.cursor !== operationsStack.previous.length - 1) {
+      operationsStack.previous = operationsStack.previous.slice(0, operationsStack.cursor + 1);
+    }
+
+    operationsStack.cursor++;
+    operationsStack.previous.push(_.cloneDeep(state));
+
+    console.log('cursor', operationsStack.cursor);
+
+    return operationsStack.previous[operationsStack.previous.length - 1];
+  },
+  goBack: () => operationsStack.cursor > 0 ? --operationsStack.cursor : 0,
+  goForward: () => operationsStack.cursor < operationsStack.previous.length - 1 ? ++operationsStack.cursor : operationsStack.cursor
+};
+
+function printStack() {
+  console.log('stack', operationsStack.previous.map(state => state.dots.length));
+}
+
+/**
  * @type {State}
  */
 let state;
@@ -70,7 +104,8 @@ function clearState() {
     },
     dots: [],
     shapes: []
-  }
+  };
+  advanceOperation();
 }
 
 /**
@@ -116,9 +151,16 @@ function getShapes() {
 }
 
 /**
+ */
+function advanceOperation() {
+  state = operationsStack.addOperation();
+}
+
+/**
  * @param {Vector} vector
  */
 function addDot(vector) {
+  advanceOperation();
   state.dots.push(vector);
   state.drawing.dotsLeft--;
 
@@ -174,7 +216,7 @@ function clearSelected() {
  * @return {Shape}
  */
 function getShapeByID(id) {
-  return state.shapes.find(({id}) => id === state.selecting.selected);
+  return state.shapes.find((shape) => shape.id === id);
 }
 
 /**
@@ -245,4 +287,24 @@ function getReferencePoint() {
  */
 function setReferencePoint(referencePoint) {
   state.transforming.referencePoint = referencePoint;
+}
+
+/**
+ */
+function undo() {
+  if (operationsStack.cursor > -1) {
+    const cursor = operationsStack.goBack();
+    console.log('cursor', cursor);
+    state = operationsStack.previous[cursor];
+  }
+}
+
+/**
+ */
+function redo() {
+  if (operationsStack.cursor + 1 < operationsStack.previous.length) {
+    const cursor = operationsStack.goForward();
+    console.log('cursor', cursor);
+    state = operationsStack.previous[cursor];
+  }
 }
