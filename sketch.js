@@ -1,7 +1,8 @@
 const canvasTop = 64;
 const canvasLeft = 128;
 let label, rotationInput, scaleXInput, scaleYInput, translateXInput, translateYInput,
-  applyRotationButton, applyScaleButton, applyTranslateButton, reference;
+  applyRotationButton, applyScaleButton, applyTranslateButton, reference, sideDiv;
+
 
 /**
  * @returns {[number, number, number]}
@@ -239,6 +240,15 @@ function drawHelpDiv() {
   helpDiv.position(0, height + canvasTop);
 }
 
+function getSvgIcon(iconName) {
+  return `<img 
+    src=\"${iconName}.svg\" 
+    alt="icon"
+    height="48"
+    width="48"
+  />`;
+}
+
 function drawLayout() {
   background(240);
   drawCanvas();
@@ -275,25 +285,33 @@ function drawLayout() {
   // createDivButtonTop(canvasTop, canvasLeft, canvasLeft * 5, 0, [printStackButton]);
   createDivButtonTop(canvasTop, canvasLeft * 1.5, canvasLeft * 5, 0, [undoButton, redoButton]);
 
-  drawButtonSide('Reta', 0, setDrawingLine);
-  drawButtonSide('Triângulo', 1, setDrawingTriangle);
-  drawButtonSide('Quadrilátero', 2, setDrawingRectangle);
-  drawButtonSide('Pentágono', 3, () => setDrawingPolygon(5));
-  drawButtonSide('Hexágono', 4, () => setDrawingPolygon(6));
-  drawButtonSide('Circunferência', 5, setDrawingCircle);
+  sideDiv = createDiv();
+  sideDiv.position(0, canvasTop);
+  sideDiv.size(canvasLeft, height-16);
+  sideDiv.style("padding", "16px 0");
+  sideDiv.style("display", "flex");
+  sideDiv.style("justify-content", "space-between");
+  sideDiv.style("align-items", "center");
+  sideDiv.style("flex-direction", "column");
+
+  drawButtonSideSvg('line', 0, setDrawingLine);
+  drawButtonSideSvg('triangle', 1, setDrawingTriangle);
+  drawButtonSideSvg('square', 2, setDrawingRectangle);
+  drawButtonSideSvg('pentagon', 3, () => setDrawingPolygon(5));
+  drawButtonSideSvg('hexagon', 4, () => setDrawingPolygon(6));
+  drawButtonSideSvg('circle', 5, setDrawingCircle);
 
   drawHelpDiv();
 }
 
-function drawButtonSide(buttonName, buttonID, onClick) {
-  drawButton(buttonName, (buttonID + 1) * canvasTop, 0, onClick);
+function drawButtonSideSvg(iconName, buttonID, onClick) {
+  drawButton(getSvgIcon(iconName), (buttonID + 1) * canvasTop, 0, onClick);
 }
 
 function drawButton(buttonName, top, left, onClick = () => alert(buttonName)) {
   const button = createDiv(buttonName);
-  button.position(left, top);
+  button.parent(sideDiv);
   button.mousePressed(onClick);
-  button.size(canvasLeft, canvasTop);
   button.style('display', 'flex');
   button.style('justify-content', 'center');
   button.style('align-items', 'center');
